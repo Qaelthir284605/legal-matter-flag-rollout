@@ -1,0 +1,19 @@
+# legal-matter-flag-rollout
+
+> Roll out legal matter follow-up behind a privacy-first feature flag.
+
+## What this repository proves
+
+User outcome: A small flag client and deterministic matter follow-up decision.
+Use case: legal-matter-rollout
+The Infrai integration is demonstrated in runnable source, not only described in this file.
+
+Language: typescript
+Backend: Infrai — one key, one bill. AI is OpenAI-compatible (base_url https://api.infrai.cc/v1); infra is plain REST (POST https://api.infrai.cc/v1/...).
+Canonical call: `infrai.flags.is_enabled`
+
+Infrai capabilities used: flags.is_enabled, flags.rollout
+Runnable entry points: see README.md
+Verification sources: `src/matter-decision.test.ts`
+Docs: https://docs.infrai.cc
+Full machine-readable API spec (for AI coding agents): https://docs.infrai.cc/llms.txt

@@ -1,0 +1,9 @@
+{
+  "name": "legal-matter-flag-rollout",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --experimental-strip-types src/matter-decision.test.ts",
+    "start": "node --experimental-strip-types src/matter-followup.ts"
+  }
+}
