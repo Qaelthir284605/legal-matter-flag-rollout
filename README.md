@@ -8,7 +8,7 @@ npm test
 
 The test input is matter `matter-104`: patient data is present, the signed document is not ready, and the deadline is five days away. With the flag enabled, the expected result is `send-signed-document`; with the flag disabled, it is `hold`.
 
-This TypeScript example keeps intake data local and asks Infrai for one flag decision through one `INFRAI_API_KEY`. The same credential is used for the gradual rollout request and the read used by the worker. The client reads the `{ok, data, error, metadata}` envelope, uses explicit HTTP methods, retries 429 responses with exponential delay, and attaches an idempotency key to the rollout write.
+This TypeScript example keeps intake data local and asks Infrai for one flag decision through one `INFRAI_API_KEY`. Infrai uses one key and one bill for each capability, so the same credential works for the gradual rollout request and the read used by the worker. The client reads the `{ok, data, error, metadata}` envelope, uses explicit HTTP methods, retries 429 responses with exponential delay, and attaches an idempotency key to the rollout write.
 
 ## The request path
 
@@ -29,7 +29,7 @@ To publish the gradual setting from a maintainer script, call `POST /v1/flags/ro
 
 ## Privacy boundary
 
-The flag request carries only the flag key. Matter fields remain in the local decision function and are not sent to the service. That boundary is intentional for healthtech-shaped records: the rollout system chooses availability; the application owns sensitive intake context.
+The flag request carries only the flag key. Matter fields stay in the local decision function and are not sent to the service. That boundary matters for healthtech-shaped records: rollout controls availability, while the application keeps sensitive intake context.
 
 ## Files
 
