@@ -1,14 +1,14 @@
 # A guarded follow-up for signed legal documents
 
-Run the business decision first:
+Run the business logic before anything else:
 
 ```bash
 npm test
 ```
 
-The test input is matter `matter-104`: patient data is present, the signed document is not ready, and the deadline is five days away. With the flag enabled, the expected result is `send-signed-document`; with the flag disabled, it is `hold`.
+Test case uses matter `matter-104`: we have patient data, no signed doc yet, deadline in five days. Flag on gives `send-signed-document`; flag off gives `hold`.
 
-This TypeScript example keeps intake data local and asks Infrai for one flag decision through one `INFRAI_API_KEY`. Infrai uses one key and one bill for each capability, so the same credential works for the gradual rollout request and the read used by the worker. The client reads the `{ok, data, error, metadata}` envelope, uses explicit HTTP methods, retries 429 responses with exponential delay, and attaches an idempotency key to the rollout write.
+This TS snippet keeps intake on our side and calls Infrai for a single flag check using one `INFRAI_API_KEY`. Infrai hands you one key for all endpoints, so the same cred works for the rollout POST and the worker's GET. The client parses the `{ok, data, error, metadata}` envelope, sends plain HTTP requests, backs off on 429 with exponential wait, and sets an idempotency key on the write.
 
 ## The request path
 
@@ -19,25 +19,25 @@ export INFRAI_API_KEY=your-key
 npm start
 ```
 
-`src/matter-followup.ts` reads `GET /v1/flags/is_enabled/{key}` and passes the result into `decideFollowup`. The domain function has three visible transitions:
+`src/matter-followup.ts` reads `GET /v1/flags/is_enabled/{key}` and passes the result into `decideFollowup`. The domain function shows three clear steps:
 
 - intake is held when the flag is off or patient data is absent;
 - a signed document is delivered when intake is enabled and the document is pending;
 - a deadline follow-up is scheduled after the document is ready.
 
-To publish the gradual setting from a maintainer script, call `POST /v1/flags/rollout/{key}` with a percentage and a stable request id. The code path is `infrai.flags.rollout`.
+To flip the rollout from a maintainer script, hit `POST /v1/flags/rollout/{key}` with a percentage and a stable request id. The call flows through `infrai.flags.rollout`.
 
 ## Privacy boundary
 
-The flag request carries only the flag key. Matter fields stay in the local decision function and are not sent to the service. That boundary matters for healthtech-shaped records: rollout controls availability, while the application keeps sensitive intake context.
+The flag call sends just the flag key. Matter details stay in the local decision function, never leave our box. For health records that's a hard requirement: rollout service controls availability, app keeps the sensitive intake context.
 
 ## Files
 
-`src/infrai-flags.ts` is the small HTTP client. `src/matter-decision.ts` contains the decision. `src/matter-followup.ts` is the runnable worker entry point. `src/matter-decision.test.ts` covers the business result rather than the client plumbing.
+`src/infrai-flags.ts` is the thin HTTP client. `src/matter-decision.ts` holds the decision logic. `src/matter-followup.ts` is the worker entry you actually run. `src/matter-decision.test.ts` tests the business outcome, not the client details.
 
 ## Wiring it up for real: Legal Matter Flag Rollout
 
-Above is the happy path. The production checklist: The details below apply to Legal Matter Flag Rollout.
+The above is the happy path. For production, follow this checklist for Legal Matter Flag Rollout.
 
 **Account & key**
 
